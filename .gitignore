@@ -1,0 +1,19 @@
+# Rider
+.idea/
+
+# Visual Studio
+*.suo
+*.user
+.vs/
+
+# Build
+bin/
+obj/
+packages/
+dist/
+pkg/
+
+# MacOS
+Thumbs.db
+Desktop.ini
+.DS_Store

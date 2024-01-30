@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.1</TargetFramework>
+        <AssemblyName>TerminalGaming</AssemblyName>
+        <Description>The classic arcade games, now on The Company's terminal!</Description>
+        <Version>1.0.0</Version>
+        <Authors>jivanf</Authors>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <LangVersion>latest</LangVersion>
+        <GenerateDependencyFile>False</GenerateDependencyFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
+        <PackageReference Include="BepInEx.Core" Version="5.*" PrivateAssets="all" />
+        <PackageReference Include="BepInEx.PluginInfoProps" Version="1.*" />
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(TargetFramework.TrimEnd(`0123456789`))' == 'net' ">
+        <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" PrivateAssets="all" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Reference Include="Assembly-CSharp" HintPath="$(LC_REFERENCES)\Assembly-CSharp.dll" Private="False" />
+        <Reference Include="UnityEngine" HintPath="$(LC_REFERENCES)\UnityEngine.dll" Private="False" />
+        <Reference Include="UnityEngine.CoreModule" HintPath="$(LC_REFERENCES)\UnityEngine.CoreModule.dll" Private="False" />
+        <Reference Include="Unity.Netcode.Runtime" HintPath="$(LC_REFERENCES)\Unity.Netcode.Runtime.dll" Private="False" />
+        <Reference Include="LethalAPI.Terminal" HintPath="lib\LethalAPI.Terminal.dll" Private="False" />
+    </ItemGroup>
+</Project>
