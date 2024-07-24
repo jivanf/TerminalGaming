@@ -17,3 +17,6 @@ pkg/
 Thumbs.db
 Desktop.ini
 .DS_Store
+
+# Codebuddy
+.codebuddy
