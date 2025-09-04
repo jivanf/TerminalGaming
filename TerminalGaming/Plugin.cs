@@ -2,6 +2,7 @@
 using LethalAPI.LibTerminal;
 using LethalAPI.LibTerminal.Models;
 using TerminalGaming.Commands;
+using UnityEngine;
 
 namespace TerminalGaming
 {
@@ -13,6 +14,8 @@ namespace TerminalGaming
 
         private void Awake()
         {
+            this.gameObject.hideFlags = HideFlags.HideAndDontSave;
+
             this.commandRegistry = TerminalRegistry.CreateTerminalRegistry();
             this.commandRegistry.RegisterFrom<PlayCommand>();
         }
