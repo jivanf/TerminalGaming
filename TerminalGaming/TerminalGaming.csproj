@@ -10,6 +10,7 @@
         <LangVersion>latest</LangVersion>
         <GenerateDependencyFile>False</GenerateDependencyFile>
         <Nullable>enable</Nullable>
+        <BepInExPluginGuid>me.$(Authors).$(AssemblyName.ToLower())</BepInExPluginGuid>
     </PropertyGroup>
 
     <ItemGroup>
