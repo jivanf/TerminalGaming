@@ -6,6 +6,7 @@ using TerminalGaming.Commands;
 namespace TerminalGaming
 {
     [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
+    [BepInDependency(LethalAPI.LibTerminal.PluginInfo.PLUGIN_GUID)]
     public class Plugin : BaseUnityPlugin
     {
         private TerminalModRegistry commandRegistry = null!;
