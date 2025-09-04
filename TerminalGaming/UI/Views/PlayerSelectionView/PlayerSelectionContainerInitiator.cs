@@ -15,7 +15,7 @@ public class PlayerSelectionContainerInitiator : IInitiator
             new SelectionListWidget(
                 new SelectionListWidgetInput
                 {
-                    Options = ["1 PLAYER", "2 PLAYERS"],
+                    Options = ["1 PLAYER"],
                     Width = 500,
                     Height = 300,
                     Spacing = 16,
