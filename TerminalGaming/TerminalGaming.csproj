@@ -1,15 +1,23 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
     <PropertyGroup>
+        <!-- Build -->
         <TargetFramework>netstandard2.1</TargetFramework>
         <AssemblyName>TerminalGaming</AssemblyName>
-        <Description>The classic arcade games, now on The Company's terminal!</Description>
+
+        <!-- Version -->
         <Version>1.0.0</Version>
-        <Authors>jivanf</Authors>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <LangVersion>latest</LangVersion>
+
+        <!-- Metadata -->
+        <Description>The classic arcade games, now on The Company's terminal!</Description>
+        <Authors>jivanf</Authors>
+
+        <!-- Language -->
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <GenerateDependencyFile>False</GenerateDependencyFile>
         <Nullable>enable</Nullable>
+
+        <!-- BepInEx -->
         <BepInExPluginGuid>me.$(Authors).$(AssemblyName.ToLower())</BepInExPluginGuid>
     </PropertyGroup>
 
