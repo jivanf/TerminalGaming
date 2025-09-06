@@ -17,6 +17,7 @@ Might add more games in the future...
 ## Global
 
 - `Up/Down` to navigate the menu.
+- `Enter` to select a menu option.
 - `Delete` to quit the game (most likely `Fn` + `Backspace` on a 60% keyboard).
 
 ## Pong
