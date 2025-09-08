@@ -26,9 +26,11 @@ public abstract class Manager<TManager> : MonoBehaviour where TManager : Manager
 
         if (gameObject is null)
         {
-            return new GameObject(name, [typeof(TManager)]).GetComponent<TInstantiatedManager>();
+            return new GameObject(name, typeof(TManager)).GetComponent<TInstantiatedManager>();
         }
 
+        // The game object might exist, but we must ensure the manager component wasn't deleted
+        // since the last time we retrieved it
         // ReSharper disable once InvertIf
         if (gameObject.GetComponent<TInstantiatedManager>() is null)
         {

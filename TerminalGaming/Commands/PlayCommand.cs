@@ -35,6 +35,9 @@ public class PlayCommand
         return commandTerminal.currentText;
     }
 
+    /// <summary>
+    /// Switch between the main container and the game container.
+    /// </summary>
     public static void SetMainContainerActive(bool value)
     {
         Terminal terminal = Manager<TerminalManager>.Instance.Terminal;

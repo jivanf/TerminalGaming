@@ -283,33 +283,43 @@ public sealed class PongGameScript : GameScript
     private void SetBallDestination()
     {
         /*
-         * This method needs to determine, along with the ball's direction, if the ball's destination should be on the container's
-         * x-boundary (left or right border, based on whether the ball is going left or right) or
-         * y-boundary (top or bottom borders, based on whether the ball is going up or down).
+         * Using the ball's current direction, this method needs to determine if the ball's destination should be the container's
+         * x-boundary, which is the "x" component of any coordinate on the horizontal boundary (left or right), or its
+         * y-boundary, which is the "y" component of any coordinate on the vertical boundary (bottom or top).
+         * These components are always known (the boundaries never move). What we need to determine is which one to pair
+         * with the other coordinate component, which isn't known and needs to be calculated using either the
+         * x-boundary or the y-boundary, as described below.
          *
          * We know two things about the ball's destination at this point:
-         * 1. It needs to be one of the container's boundaries.
-         * 2. If the ball is going right and/or up, the x-boundary and/or y-boundary will be positive, and vice versa.
+         * 1. It needs to be on one of the container's boundaries.
+         * 2. If the ball is going right or up, the x-boundary (right) or y-boundary (top) will be positive, and vice versa.
          *
-         * With this, we have one component of the destination's vector. To find the other component, we'll use the
-         * line formula, which allows us to find the destination's x or y value using the starting position's
-         * x *and* y values (the current position of the ball) and one of the destination's x or y values,
-         * which would be the destination's vector component we have (the x- or y-boundary). The line formula is:
+         * With this, we have one component of the destination's vector (coordinates). To calculate the other component,
+         * we'll use the line formula:
          *
          * y = mx + b
          *
-         * However, we still don't know if we'll use the x- or y-boundary for the destination's vector and whether
-         * we'll use the x- or y-value derived from the formula, which we'll call "x-target" and "y-target"
-         * respectively. To determine this, we'll use both boundaries to calculate 2 different destination positions:
-         * 1. X: x-boundary, Y: y-target
-         * 2. X: x-target, Y: y-boundary
+         * where:
+         * - "y" is the y-target if we use the x-boundary, or the y-boundary if we use the x-target
+         * - "m" is the slope, which is the ball's direction
+         * - "b" is the y-intercept, which is the value of "y" when "x" is 0. This serves as an offset without which "y"
+         *   would always be 0 when "x" is 0.
+         *
+         * However, we still don't know if we'll use the x-boundary or the y-boundary for the destination vector,
+         * and if we'll use the "x" or "y" value derived from the formula, which we'll call "x-target" and "y-target".
+         * To determine this, we'll calculate 2 different destination vectors:
+         *
+         * | X Coordinate | Y Coordinate |
+         * |--------------|--------------|
+         * | x-boundary   | y-target     |
+         * | x-target     | y-boundary   |
          *
          * One of these positions is wrong because it's out of bounds. For example, if the ball were to bounce off the
          * right paddle down and to the left (45-degree angle), the first position (x-boundary and y-target) would be
-         * wrong because in order to reach the x-boundary (left boundary), it would have to go out of bounds to
-         * reach y-target. On the other hand, the second position can be reached because both the y-boundary
-         * (bottom boundary) and the x-target are in bounds. Therefore, this position would be the ball's destination.
-         *
+         * wrong because in order to reach the negative x-boundary (left boundary), it would have to go out of bounds to
+         * reach the negative y-target (bottom boundary). On the other hand, the second position can be reached because
+         * both the negative y-boundary and the negative x-target are in bounds. Therefore, this position would be
+         * the ball's destination.
          */
 
         Vector2 ballPosition = this.ballTransform.anchoredPosition;
@@ -323,14 +333,30 @@ public sealed class PongGameScript : GameScript
         xBoundary = this.ballDirection.x > 0 ? xBoundary : -xBoundary;
         yBoundary = this.ballDirection.y > 0 ? yBoundary : -yBoundary;
 
-        // m = dy / dx
+        /*
+         * Calculate the slope:
+         * m = dy / dx
+         */
         float slope = this.ballDirection.y / this.ballDirection.x;
 
+        /*
+         * Calculate the y-intercept from the line formula:
+         * y = mx + b
+         * b = y - mx
+         */
         float yIntercept = ballPosition.y - slope * ballPosition.x;
 
+        // Calculate y-target by substituting "x" with x-boundary in the line formula
         float yTarget = slope * xBoundary + yIntercept;
 
-        // Rearrange the formula to get the x-target
+        /*
+         * Calculate x-target by substituting "y" with y-boundary in the line formula
+         *
+         * Note that we need to rearrange the equation:
+         * y = mx + b
+         * mx = y - b
+         * x = (y - b) / m
+         */
         float xTarget = (yBoundary - yIntercept) / slope;
 
         // Check which target (x-target or y-target) is in bounds

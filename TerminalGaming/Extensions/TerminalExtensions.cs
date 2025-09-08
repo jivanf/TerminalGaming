@@ -6,6 +6,10 @@ namespace TerminalGaming.Extensions;
 
 public static class TerminalExtensions
 {
+    /// <summary>
+    /// Get the main container. This is the default container, and it displays the credits and
+    /// command output.
+    /// </summary>
     public static GameObject GetMainContainer(this Terminal terminal)
     {
         GameObject? mainContainer = terminal.GetContainer("MainContainer");
@@ -20,6 +24,9 @@ public static class TerminalExtensions
         return mainContainer;
     }
 
+    /// <summary>
+    /// Get the game container. This container displays our game views.
+    /// </summary>
     public static GameObject GetGameContainer(this Terminal terminal)
     {
         return terminal.GetContainer("GameContainer") ?? terminal.InstantiateGameContainer();
