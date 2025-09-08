@@ -33,7 +33,7 @@ public static class TerminalExtensions
     }
 
     // ReSharper disable Unity.PerformanceAnalysis
-    public static GameObject? GetContainer(this Terminal terminal, string containerName)
+    private static GameObject? GetContainer(this Terminal terminal, string containerName)
     {
         return terminal.terminalUIScreen.gameObject.transform.Find(containerName)?.gameObject;
     }
