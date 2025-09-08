@@ -23,10 +23,8 @@ public class PlayCommand
             return null;
         }
 
+        Manager<GameManager>.Instantiate();
         Manager<TerminalManager>.Instance.Terminal = commandTerminal;
-
-        // TODO: Add game in `PlayerSelectionView`
-        GameManager gameManager = Manager<GameManager>.Instance;
 
         SetMainContainerActive(false);
 
