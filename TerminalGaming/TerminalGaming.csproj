@@ -5,7 +5,7 @@
         <AssemblyName>TerminalGaming</AssemblyName>
 
         <!-- Version -->
-        <Version>1.0.1</Version>
+        <Version>1.0.2</Version>
         <LangVersion>latest</LangVersion>
 
         <!-- Metadata -->
@@ -22,17 +22,17 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
-        <PackageReference Include="BepInEx.Core" Version="5.*" PrivateAssets="all" />
-        <PackageReference Include="BepInEx.PluginInfoProps" Version="1.*" />
-        <PackageReference Include="LethalCompany.GameLibs.Steam" Version="[81.0.5-ngd.0]" IncludeAssets="compile" PrivateAssets="all" />
+        <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all"/>
+        <PackageReference Include="BepInEx.Core" Version="5.*" PrivateAssets="all"/>
+        <PackageReference Include="BepInEx.PluginInfoProps" Version="1.*"/>
+        <PackageReference Include="LethalCompany.GameLibs.Steam" Version="[81.0.5-ngd.0]" IncludeAssets="compile" PrivateAssets="all"/>
     </ItemGroup>
 
     <ItemGroup Condition=" '$(TargetFramework.TrimEnd(`0123456789`))' == 'net' ">
-        <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" PrivateAssets="all" />
+        <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" PrivateAssets="all"/>
     </ItemGroup>
 
     <ItemGroup>
-        <Reference Include="LethalAPI.Terminal" HintPath="lib\LethalAPI.Terminal.dll" Private="False" />
+        <Reference Include="LethalAPI.Terminal" HintPath="lib\LethalAPI.Terminal.dll" Private="False"/>
     </ItemGroup>
 </Project>

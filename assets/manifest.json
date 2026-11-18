@@ -1,7 +1,7 @@
 {
     "name": "TerminalGaming",
     "description": "Adds cool games to the terminal",
-    "version_number": "1.0.1",
+    "version_number": "1.0.2",
     "dependencies": [
         "jivanf-jivanf_LethalAPI_Terminal-1.0.0",
         "BepInEx-BepInExPack-5.4.2100"
