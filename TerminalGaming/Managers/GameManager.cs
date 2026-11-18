@@ -47,7 +47,9 @@ public class GameManager : Manager<GameManager>
 
     protected void Update()
     {
-        if (new KeyboardShortcut(KeyCode.Delete).IsDown())
+        Terminal terminal = Manager<TerminalManager>.Instance.Terminal;
+        
+        if (new KeyboardShortcut(KeyCode.Delete).IsDown() || !terminal.terminalInUse)
         {
             this.OnQuit();
 
