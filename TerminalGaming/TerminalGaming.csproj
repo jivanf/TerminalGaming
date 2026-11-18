@@ -9,7 +9,7 @@
         <LangVersion>latest</LangVersion>
 
         <!-- Metadata -->
-        <Description>The classic arcade games, now on The Company's terminal!</Description>
+        <Description>Adds retro games to the terminal</Description>
         <Authors>jivanf</Authors>
 
         <!-- Language -->
