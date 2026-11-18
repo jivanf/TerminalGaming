@@ -25,6 +25,7 @@
         <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
         <PackageReference Include="BepInEx.Core" Version="5.*" PrivateAssets="all" />
         <PackageReference Include="BepInEx.PluginInfoProps" Version="1.*" />
+        <PackageReference Include="LethalCompany.GameLibs.Steam" Version="[81.0.5-ngd.0]" IncludeAssets="compile" PrivateAssets="all" />
     </ItemGroup>
 
     <ItemGroup Condition=" '$(TargetFramework.TrimEnd(`0123456789`))' == 'net' ">
@@ -32,14 +33,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Reference Include="Assembly-CSharp" HintPath="$(LC_REFERENCES)\Assembly-CSharp.dll" Private="False" />
-        <Reference Include="UnityEngine" HintPath="$(LC_REFERENCES)\UnityEngine.dll" Private="False" />
-        <Reference Include="UnityEngine.CoreModule" HintPath="$(LC_REFERENCES)\UnityEngine.CoreModule.dll" Private="False" />
-        <Reference Include="Unity.Netcode.Runtime" HintPath="$(LC_REFERENCES)\Unity.Netcode.Runtime.dll" Private="False" />
-        <Reference Include="UnityEngine.UIModule" HintPath="$(LC_REFERENCES)\UnityEngine.UIModule.dll" Private="False" />
-        <Reference Include="Unity.TextMeshPro" HintPath="$(LC_REFERENCES)\Unity.TextMeshPro.dll" Private="False" />
-        <Reference Include="UnityEngine.UI" HintPath="$(LC_REFERENCES)\UnityEngine.UI.dll" Private="False" />
-        <Reference Include="UnityEngine.Physics2DModule" HintPath="$(LC_REFERENCES)\UnityEngine.Physics2DModule.dll" Private="False" />
         <Reference Include="LethalAPI.Terminal" HintPath="lib\LethalAPI.Terminal.dll" Private="False" />
     </ItemGroup>
 </Project>
