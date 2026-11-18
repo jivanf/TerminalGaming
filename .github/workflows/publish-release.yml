@@ -87,7 +87,12 @@ jobs:
           candidate="$RUNNER_TEMP/TerminalGaming-$VERSION.zip"
           metadata="$RUNNER_TEMP/thunderstore-version.json"
           url="https://thunderstore.io/api/experimental/package/jivanf/TerminalGaming/$VERSION/"
-          status=$(curl --silent --show-error --max-time 60 --output "$metadata" --write-out '%{http_code}' "$url")
+          lookup_version() {
+            # Use a fresh URL so a cached pre-upload 404 cannot hide a published version.
+            curl --silent --show-error --max-time 15 --output "$metadata" --write-out '%{http_code}' \
+              "$url?verify=$(date +%s%N)"
+          }
+          status=$(lookup_version)
           if [[ "$status" == 404 ]]; then
             [[ -n "$TCLI_AUTH_TOKEN" ]]
             config="$RUNNER_TEMP/thunderstore.toml"
@@ -102,9 +107,16 @@ jobs:
           lethal-company = ["clientside", "mods"]
           EOF
             "$RUNNER_TEMP/tools/tcli" publish --config-path "$config" --file "$candidate"
-            curl --fail --silent --show-error --retry 5 --retry-all-errors --max-time 60 "$url" > "$metadata"
-          else
-            [[ "$status" == 200 ]]
+            for attempt in {1..12}; do
+              if status=$(lookup_version) && [[ "$status" == 200 ]]; then
+                break
+              fi
+              sleep 5
+            done
+          fi
+          if [[ "$status" != 200 ]]; then
+            echo "Could not verify Thunderstore version $VERSION (HTTP ${status:-unknown})." >&2
+            exit 1
           fi
           download=$(jq -er '.download_url | select(startswith("https://thunderstore.io/package/download/jivanf/TerminalGaming/"))' "$metadata")
           curl --fail --silent --show-error --location --max-time 60 "$download" > "$RUNNER_TEMP/published.zip"
