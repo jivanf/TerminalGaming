@@ -1,0 +1,30 @@
+name: Validate release
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5.0.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@v5.0.0
+        with:
+          dotnet-version: '8.0.x'
+      - name: Build and validate the release package
+        env:
+          RELEASE_PR: ${{ github.event.pull_request.head.repo.full_name == github.repository && startsWith(github.head_ref, 'release-please--branches--main') }}
+        run: |
+          set -euo pipefail
+          if [[ "$RELEASE_PR" == true ]]; then
+            python .github/scripts/release.py notes > /dev/null
+          fi
+          dotnet publish TerminalGaming/TerminalGaming.csproj -c Release -o "$RUNNER_TEMP/mod"
+          python .github/scripts/release.py package --dll "$RUNNER_TEMP/mod/TerminalGaming.dll" --output "$RUNNER_TEMP/TerminalGaming.zip"
+          python .github/scripts/release.py verify --output "$RUNNER_TEMP/TerminalGaming.zip"

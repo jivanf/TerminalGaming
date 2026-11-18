@@ -1,0 +1,116 @@
+name: Publish release
+
+on:
+  pull_request_target:
+    branches: [main]
+    types: [closed]
+  workflow_dispatch:
+    inputs:
+      sha:
+        description: Full SHA of the merged release PR commit
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-release
+
+jobs:
+  publish:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.pull_request.merged &&
+       github.event.pull_request.head.repo.full_name == github.repository &&
+       startsWith(github.event.pull_request.head.ref, 'release-please--branches--main'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: thunderstore
+    env:
+      RELEASE_SHA: ${{ inputs.sha || github.event.pull_request.merge_commit_sha }}
+    steps:
+      - uses: actions/checkout@v5.0.0
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify and check out the release commit
+        id: release
+        run: |
+          set -euo pipefail
+          [[ "$RELEASE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          git merge-base --is-ancestor "$RELEASE_SHA" HEAD
+          git checkout --detach "$RELEASE_SHA"
+          version=$(python .github/scripts/release.py version)
+          previous=$(git show HEAD^:.release-please-manifest.json | jq -er '.["."]')
+          [[ "$version" != "$previous" ]]
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          python .github/scripts/release.py notes > "$RUNNER_TEMP/notes.md"
+      - uses: actions/setup-dotnet@v5.0.0
+        with:
+          dotnet-version: '8.0.x'
+      - name: Prepare or retrieve the release candidate
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.release.outputs.version }}
+        run: |
+          set -euo pipefail
+          tag="v$VERSION"
+          asset="TerminalGaming-$VERSION.zip"
+          candidate="$RUNNER_TEMP/$asset"
+          releases=$(gh api --paginate "repos/$GITHUB_REPOSITORY/releases?per_page=100" --jq ".[] | select(.tag_name == \"$tag\") | [.target_commitish, ([.assets[] | select(.name == \"$asset\") | .id] | first // \"\")] | @tsv")
+          if [[ -z "$releases" ]]; then
+            [[ -z "$(git tag -l "$tag")" ]]
+            gh release create "$tag" --draft --target "$RELEASE_SHA" --title "$tag" --notes-file "$RUNNER_TEMP/notes.md"
+          else
+            read -r target asset_id <<<"$releases"
+            [[ "$target" == "$RELEASE_SHA" ]]
+            if [[ -n "${asset_id:-}" ]]; then
+              gh api -H 'Accept: application/octet-stream' "repos/$GITHUB_REPOSITORY/releases/assets/$asset_id" > "$candidate"
+            fi
+          fi
+          if [[ ! -f "$candidate" ]]; then
+            dotnet publish TerminalGaming/TerminalGaming.csproj -c Release -o "$RUNNER_TEMP/mod"
+            python .github/scripts/release.py package --dll "$RUNNER_TEMP/mod/TerminalGaming.dll" --output "$candidate"
+            gh release upload "$tag" "$candidate"
+          fi
+          python .github/scripts/release.py verify --output "$candidate"
+      - name: Install the Thunderstore API client
+        run: dotnet tool install tcli --tool-path "$RUNNER_TEMP/tools" --version 0.2.4
+      - name: Submit and verify the Thunderstore package
+        env:
+          TCLI_AUTH_TOKEN: ${{ secrets.THUNDERSTORE_TOKEN }}
+          VERSION: ${{ steps.release.outputs.version }}
+        run: |
+          set -euo pipefail
+          candidate="$RUNNER_TEMP/TerminalGaming-$VERSION.zip"
+          metadata="$RUNNER_TEMP/thunderstore-version.json"
+          url="https://thunderstore.io/api/experimental/package/jivanf/TerminalGaming/$VERSION/"
+          status=$(curl --silent --show-error --max-time 60 --output "$metadata" --write-out '%{http_code}' "$url")
+          if [[ "$status" == 404 ]]; then
+            [[ -n "$TCLI_AUTH_TOKEN" ]]
+            config="$RUNNER_TEMP/thunderstore.toml"
+            cat > "$config" <<EOF
+          [package]
+          namespace = "jivanf"
+          name = "TerminalGaming"
+          versionNumber = "$VERSION"
+          [publish]
+          communities = ["lethal-company"]
+          [publish.categories]
+          lethal-company = ["clientside", "mods"]
+          EOF
+            "$RUNNER_TEMP/tools/tcli" publish --config-path "$config" --file "$candidate"
+            curl --fail --silent --show-error --retry 5 --retry-all-errors --max-time 60 "$url" > "$metadata"
+          else
+            [[ "$status" == 200 ]]
+          fi
+          download=$(jq -er '.download_url | select(startswith("https://thunderstore.io/package/download/jivanf/TerminalGaming/"))' "$metadata")
+          curl --fail --silent --show-error --location --max-time 60 "$download" > "$RUNNER_TEMP/published.zip"
+          cmp "$candidate" "$RUNNER_TEMP/published.zip"
+      - name: Publish the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.release.outputs.version }}
+        run: gh release edit "v$VERSION" --draft=false

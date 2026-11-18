@@ -1,0 +1,20 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "bootstrap-sha": "85af6ddd73c0389cef32c60e93182c09f9216a52",
+  "skip-github-release": true,
+  "packages": {
+    ".": {
+      "release-type": "simple",
+      "include-component-in-tag": false,
+      "changelog-sections": [
+        { "type": "feat", "section": "Features" },
+        { "type": "refactor", "section": "Changes" },
+        { "type": "fix", "section": "Fixes" }
+      ],
+      "extra-files": [
+        { "type": "json", "path": "assets/manifest.json", "jsonpath": "$.version_number" },
+        { "type": "xml", "path": "TerminalGaming/TerminalGaming.csproj", "xpath": "/Project/PropertyGroup/Version" }
+      ]
+    }
+  }
+}

@@ -1,0 +1,57 @@
+name: Prepare release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: prepare-release
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5.0.0
+        with:
+          persist-credentials: false
+      - uses: actions/create-github-app-token@v2.2.0
+        id: app
+        with:
+          app-id: ${{ vars.RELEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+      - uses: googleapis/release-please-action@v5.0.0
+        id: release
+        with:
+          token: ${{ steps.app.outputs.token }}
+          target-branch: main
+          skip-github-release: true
+      - name: Remove scopes from the changelog entry
+        if: steps.release.outputs.prs_created == 'true'
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+          RELEASE_PR: ${{ steps.release.outputs.pr }}
+        run: |
+          set -euo pipefail
+          branch=$(jq -er '.headBranchName' <<<"$RELEASE_PR")
+          [[ "$branch" == release-please--branches--main* ]]
+          work=$(mktemp -d)
+          for path in CHANGELOG.md assets/manifest.json TerminalGaming/TerminalGaming.csproj .release-please-manifest.json; do
+            mkdir -p "$work/$(dirname "$path")"
+            entry=$(gh api --method GET "repos/$GITHUB_REPOSITORY/contents/$path" -f ref="$branch")
+            jq -r .content <<<"$entry" | base64 --decode > "$work/$path"
+            if [[ "$path" == CHANGELOG.md ]]; then
+              sha=$(jq -er .sha <<<"$entry")
+            fi
+          done
+          cp "$work/CHANGELOG.md" "$work/original.md"
+          formatter="$GITHUB_WORKSPACE/.github/scripts/release.py"
+          (cd "$work" && python "$formatter" normalize)
+          if ! cmp -s "$work/original.md" "$work/CHANGELOG.md"; then
+            gh api --method PUT "repos/$GITHUB_REPOSITORY/contents/CHANGELOG.md" \
+              -f branch="$branch" -f sha="$sha" -f message="docs: Omit scopes from release notes" \
+              -f content="$(base64 -w0 "$work/CHANGELOG.md")" --silent
+          fi
