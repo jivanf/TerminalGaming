@@ -6,7 +6,8 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
+  pull-requests: write
 
 concurrency:
   group: prepare-release
@@ -18,21 +19,16 @@ jobs:
       - uses: actions/checkout@v5.0.0
         with:
           persist-credentials: false
-      - uses: actions/create-github-app-token@v2.2.0
-        id: app
-        with:
-          app-id: ${{ vars.RELEASE_APP_ID }}
-          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
       - uses: googleapis/release-please-action@v5.0.0
         id: release
         with:
-          token: ${{ steps.app.outputs.token }}
+          token: ${{ github.token }}
           target-branch: main
           skip-github-release: true
       - name: Remove scopes from the changelog entry
         if: steps.release.outputs.prs_created == 'true'
         env:
-          GH_TOKEN: ${{ steps.app.outputs.token }}
+          GH_TOKEN: ${{ github.token }}
           RELEASE_PR: ${{ steps.release.outputs.pr }}
         run: |
           set -euo pipefail
